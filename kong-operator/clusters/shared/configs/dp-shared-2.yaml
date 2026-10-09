@@ -1,0 +1,27 @@
+apiVersion: gateway-operator.konghq.com/v1beta1
+kind: DataPlane
+metadata:
+  name: dp-shared-2
+spec:
+  extensions:
+    - kind: KonnectExtension
+      name: konnect-extension-shared-2
+      group: konnect.konghq.com
+  deployment:
+    podTemplateSpec:
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - shared-2
+        containers:
+          - name: proxy
+            image: kong/kong-gateway:3.9.1.0
+            env:
+              - name: KONG_LOG_LEVEL
+                value: info

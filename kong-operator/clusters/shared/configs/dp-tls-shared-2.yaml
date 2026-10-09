@@ -1,0 +1,17 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dp-tls-shared-2
+spec:
+  secretName: dp-tls-shared-2
+  issuerRef:
+    name: kong-clustering-int-ca
+    kind: ClusterIssuer
+  commonName: kong_clustering
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretTemplate:
+    labels:
+      konghq.com/secret: "true"
+      konghq.com/konnect-dp-cert: "true"

@@ -1,0 +1,20 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshPassthrough
+metadata:
+  name: mesh-passthrough-kong-${cp_dp_name}-${kong_deployment_name}
+  namespace: kong-mesh-system
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: MeshSubset
+    tags:
+      app: "kong-${cp_dp_name}-${kong_deployment_name}-kong"
+  default:
+    passthroughMode: All
+    # appendMatch:
+    # - type: Domain
+    #   value: "*.cluster-1.kafka.aws.us-east-2.com"
+    #   protocol: tls
+    #   port: 443

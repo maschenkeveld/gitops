@@ -1,0 +1,16 @@
+kind: KonnectExtension
+apiVersion: konnect.konghq.com/v1alpha2
+metadata:
+  name: konnect-extension-shared-2
+spec:
+  konnect:
+    controlPlane:
+      ref:
+        type: konnectNamespacedRef
+        konnectNamespacedRef:
+          name: ko-dp-shared-2
+  clientAuth:
+    certificateSecret:
+      provisioning: Manual
+      secretRef:
+        name: dp-tls-shared-2

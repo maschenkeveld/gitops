@@ -1,0 +1,18 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshExternalService
+metadata:
+  name: eddy
+  namespace: kong-mesh-system-${k8s_cluster_name}
+  labels:
+    kuma.io/mesh: mesh-a
+    kuma.io/origin: zone
+spec:
+  match:
+    type: HostnameGenerator
+    port: 8080
+    protocol: http
+  endpoints:
+  - address: eddy.eddy
+    port: 8080
+
+    

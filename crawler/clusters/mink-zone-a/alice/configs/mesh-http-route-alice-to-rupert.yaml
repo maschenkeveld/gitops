@@ -1,0 +1,81 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshHTTPRoute
+metadata:
+  name: header-version-to-path
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: ${name}
+  to:
+    - targetRef:
+        kind: MeshService
+        name: rupert
+        namespace: rupert
+      rules:
+        - matches:
+            - headers:
+                - name: "version"
+                  value: "v1"
+                  type: Exact
+              path:
+                type: Exact
+                value: "/crawl"
+          default:
+            filters:
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: "/crawl/v1"
+        - matches:
+            - headers:
+                - name: "version"
+                  value: "v2"
+                  type: Exact
+              path:
+                type: Exact
+                value: "/crawl"
+          default:
+            filters:
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: "/crawl/v2"
+---
+# apiVersion: kuma.io/v1alpha1
+# kind: MeshHTTPRoute
+# metadata:
+#   name: static-header
+#   namespace: kong-mesh-system
+#   labels:
+#     kuma.io/mesh: mesh-a
+#     kuma.io/origin: zone
+# spec:
+#   targetRef:
+#     kind: MeshSubset
+#     tags:
+#       app: "kong-dp-konnect-eu-mink-mesh-a-kong"
+#   to:
+#   - targetRef:
+#       kind: MeshService
+#       name: rupert
+#       namespace: rupert
+#     rules:
+#     - matches:
+#       - path:
+#           type: PathPrefix
+#           value: "/"
+#       default:
+#         filters:
+#         - type: RequestHeaderModifier
+#           requestHeaderModifier:
+#             add:
+#             - name: x-header-for-rupert
+#               value: "Hello Rupert"
+

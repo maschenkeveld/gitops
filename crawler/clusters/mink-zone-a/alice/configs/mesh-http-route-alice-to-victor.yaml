@@ -1,0 +1,39 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshHTTPRoute
+metadata:
+  name: http-split-alice-to-victor
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: alice
+  to:
+  - targetRef:
+      kind: MeshService
+      name: victor
+      namespace: victor
+      sectionName: http
+    rules:
+    - matches:
+      - path:
+          type: Exact
+          value: "/crawl"
+      default:
+        backendRefs:
+        # - kind: MeshService
+        #   name: victor-v1
+        #   namespace: victor-v1
+          # weight: 50
+        #   # tags:
+        #   #   version: v1
+        - kind: MeshService
+          name: victor-v2
+          namespace: victor-v2
+          port: 8080
+          weight: 50
+          # tags:
+          #   version: v2

@@ -1,0 +1,24 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshFaultInjection
+metadata:
+  name: fault-injection-${name}
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: ${name}
+  from:
+  - targetRef:
+      kind: Mesh
+    default:
+      http:
+      - abort:
+          httpStatus: 500
+          percentage: 50
+      # - delay:
+      #     value: 60s
+      #     percentage: 100

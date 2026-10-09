@@ -1,0 +1,49 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-bob-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Namespace
+      name: bob
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "shared"
+      name: "bob"
+      namespace: "bob"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-bob-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/clusters/shared-pve-1/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: crawler-bob-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "shared"
+      name: "bob"
+      namespace: "bob"

@@ -1,0 +1,16 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshExternalService
+metadata:
+  name: mink-zone-a-collector
+  namespace: kong-mesh-system
+  labels:
+    kuma.io/mesh: mesh-a
+    kuma.io/origin: zone
+spec:
+  match:
+    type: HostnameGenerator
+    port: 4317
+    protocol: tcp
+  endpoints:
+  - address: mink-zone-a-collector.otel-mesh-a
+    port: 4317

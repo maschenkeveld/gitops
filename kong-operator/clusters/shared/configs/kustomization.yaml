@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kong-operator
+resources:
+  - dp-tls-shared-2.yaml
+  - kgw-cp-shared-2.yaml
+  - konnect-extension-shared-2.yaml
+  - dp-shared-2.yaml
+  - dp-tls-shared-3.yaml
+  - kgw-cp-shared-3.yaml
+  - konnect-extension-shared-3.yaml
+  - dp-shared-3.yaml

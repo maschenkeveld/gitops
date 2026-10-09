@@ -1,0 +1,74 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./cert-manager/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Namespace
+      name: cert-manager
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./cert-manager/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cert-manager
+      namespace: cert-manager
+  dependsOn:
+    - name: cert-manager-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./cert-manager/base/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: cert-manager-deployment
+      namespace: flux-system
+    - name: external-secrets-deployment
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"

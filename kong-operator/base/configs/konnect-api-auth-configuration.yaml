@@ -1,0 +1,17 @@
+kind: KonnectAPIAuthConfiguration
+apiVersion: konnect.konghq.com/v1alpha1
+metadata:
+  name: konnect-api-auth-configuration
+  namespace: kong-operator
+spec:
+  # type: secretRef consistently fails on this operator version - the
+  # controller's own reconciler logs "Secret ... not found" indefinitely
+  # even though the Secret exists, is correctly labeled, and RBAC is fine
+  # (confirmed live: a prior engineer's note on the old payload-park/
+  # header-hills setup already flagged this same behavior). Falling back to
+  # type: token, with the value injected via this Kustomization's
+  # postBuild.substituteFrom (reads the live ExternalSecret-populated
+  # Secret at build time) - keeps the token out of git either way.
+  type: token
+  token: ${token}
+  serverURL: https://eu.api.konghq.com

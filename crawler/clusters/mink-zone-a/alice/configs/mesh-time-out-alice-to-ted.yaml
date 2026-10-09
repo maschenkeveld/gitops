@@ -1,0 +1,23 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshTimeout
+metadata:
+  name: timeout-alice-to-ted
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: ${name}
+  to:
+  - targetRef:
+      kind: MeshService
+      name: ted
+      namespace: ted
+    default:
+      idleTimeout: 20s
+      connectionTimeout: 70s
+      http:
+        requestTimeout: 70s

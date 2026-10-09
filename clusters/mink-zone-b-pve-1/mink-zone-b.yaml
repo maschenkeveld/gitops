@@ -1,0 +1,50 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-mesh-system-prerequisites-mink-zone-b
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mink/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Namespace
+      name: kong-mesh-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+      mink_control_plane_region: "eu"
+      mink_control_plane_name: "mink-global-control-plane"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-mesh-system-deployment-mink-zone-b
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mink/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: kong-mesh-system-prerequisites-mink-zone-b
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+      mesh_environment: "kubernetes"
+      mink_control_plane_region: "eu"
+      mink_control_plane_name: "mink-global-control-plane"

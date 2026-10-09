@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "crawler-config"
+  namespace: "${namespace}"
+  labels:
+    app: "${name}"
+data:
+  SERVICE_NAME: "crawler-${name}"
+  SERVICE_HOSTNAME: "crawler-${name}"
+  SERVICE_VERSION: ${version}
+  MESH_ZONE: "${k8s_cluster_name}-${host_machine}"
+  HEALTH: "${health}" # healthy or unhealthy
+  OTEL_EXPORTER_OTLP_ENDPOINT: "${k8s_cluster_name}-collector.otel-${k8s_cluster_name}:4318"
+  ENVIRONMENT: "${k8s_cluster_name}"

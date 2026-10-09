@@ -1,0 +1,20 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshTrafficPermission
+metadata:
+  name: allow-kong-dp-to-${name}
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: "${name}"
+  from:
+  - targetRef:
+      kind: MeshSubset
+      tags:
+        app: "kong-dp-konnect-eu-mink-mesh-a-kong"
+    default:
+      action: Allow

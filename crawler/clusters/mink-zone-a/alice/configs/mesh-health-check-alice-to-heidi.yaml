@@ -1,0 +1,28 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshHealthCheck
+metadata:
+  name: health-check-alice-to-heidi
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: ${name}
+  to:
+  - targetRef:
+      kind: MeshService
+      name: heidi
+      namespace: heidi
+    default:
+      interval: 10s
+      timeout: 2s
+      unhealthyThreshold: 3
+      healthyThreshold: 1
+      http:
+        path: "/"
+        expectedStatuses:
+        - 200
+        - 201

@@ -1,0 +1,18 @@
+kind: KonnectGatewayControlPlane
+apiVersion: konnect.konghq.com/v1alpha2
+metadata:
+  name: ko-dp-shared-2
+spec:
+  # Mirror mode: this control plane is created and owned by Terraform
+  # (github.com/maschenkeveld/konnect-eu-ko-dp-shared-2), not by the operator.
+  # This is a read-only reference to it by Konnect ID. source defaults to
+  # "Origin" (which requires createControlPlaneRequest) if left unset -
+  # must be explicit here for the mirror field to be valid at all.
+  source: Mirror
+  mirror:
+    konnect:
+      # terraform output control_plane_id (konnect-eu-ko-dp-shared-2)
+      id: REPLACE_WITH_CONTROL_PLANE_ID
+  konnect:
+    authRef:
+      name: konnect-api-auth-configuration

@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "${name}"
+  namespace: "${namespace}"
+spec:
+  selector:
+    matchLabels:
+      app: "${name}"
+  template:
+    metadata:
+      labels:
+        app: "${name}"
+        app_type: "crawler"
+        version: "${version}"
+        app_is_external_facing: "${external_facing}"
+      annotations:
+        traffic.kuma.io/exclude-inbound-ports: "5670"
+    spec:
+      containers:
+        - name: "${name}"
+          image: "ghcr.io/maschenkeveld/mesh-crawler:go-2.0.7"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: "SERVICE_VERSION"
+              value: "go-2.0.7"
+          envFrom:
+            - configMapRef:
+                name: "crawler-config"
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8080
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 20
+          # resources:
+          #   limits:
+          #     cpu: "1000m"
+          #     memory: "512Mi"
+          #   requests:
+          #     cpu: "100m"
+          #     memory: "256Mi"

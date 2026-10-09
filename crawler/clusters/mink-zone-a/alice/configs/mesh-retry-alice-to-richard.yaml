@@ -1,0 +1,26 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshRetry
+metadata:
+  name: mesh-retry-alice-to-richard
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: alice
+  to:
+  - targetRef:
+      kind: MeshService
+      name: richard
+      namespace: richard
+    default:
+      http:
+        numRetries: 10
+        backOff:
+          baseInterval: 2s
+          maxInterval: 20m
+        retryOn:
+        - 5xx

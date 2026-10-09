@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: external-dns
+resources:
+  - ./kong-proxy-dp-1-hybrid-1-default-shared-pve-1-example-com.yaml
+  - ./kong-proxy-dp-1-hybrid-1-manual-shared-pve-1-example-com.yaml
+  - ./kong-proxy-dp-1-hybrid-1-automated-shared-pve-1-example-com.yaml
+  - ./kong-proxy-dp-1-hybrid-2-default-shared-pve-1-example-com.yaml
+  - ./kong-proxy-dp-1-hybrid-2-manual-shared-pve-1-example-com.yaml
+  - ./kong-proxy-dp-1-hybrid-2-automated-shared-pve-1-example-com.yaml

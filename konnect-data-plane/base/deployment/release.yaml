@@ -1,0 +1,149 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kong-${cp_dp_name}-${kong_deployment_name}
+  namespace: kong-${cp_dp_name}-${kong_deployment_name}
+spec:
+  interval: 1m
+  releaseName: kong-${cp_dp_name}-${kong_deployment_name}
+  chart:
+    spec:
+      chart: kong
+      version: 2.33.2
+      sourceRef:
+        kind: HelmRepository
+        name: kong
+  valuesFrom:
+    - kind: Secret
+      name: konnect-details-secret
+  values:
+    image:
+      repository: ${kong_gateway_image}
+      tag: ${kong_gateway_image_version}
+
+    secretVolumes:
+    - kong-proxy-default-tls
+
+    admin:
+      enabled: false
+
+    manager:
+      enabled: false
+  
+    proxy:
+      enabled: true
+      type: LoadBalancer
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "kong-proxy-${cp_dp_name}-${kong_deployment_name}.${k8s_cluster_name}.${host_machine}.example.com"
+
+    env:
+      role: data_plane
+      database: "off"
+      cluster_mtls: pki
+      # cluster_control_plane: ${cluster_control_plane}:443
+      # cluster_server_name: ${cluster_control_plane}
+      # cluster_telemetry_endpoint: ${cluster_telemetry}:443
+      # cluster_telemetry_server_name: ${cluster_telemetry}
+      cluster_cert: /etc/cert-manager/cluster/tls.crt
+      cluster_cert_key: /etc/cert-manager/cluster/tls.key
+      lua_ssl_trusted_certificate: system
+      konnect_mode: "on"
+      vitals: "off"
+
+      tracing_instrumentations: all
+      tracing_sampling_rate: 1
+
+      secret_env_vars_var_1: "secret-env-vars-var-1:secret-env-vars-var-1-value"
+
+      ssl_cert: /etc/secrets/kong-proxy-default-tls/tls.crt
+      ssl_cert_key: /etc/secrets/kong-proxy-default-tls/tls.key
+
+      plugins: ${plugins}
+
+      proxy_access_log: /dev/stdout # proxy_access_log: syslog:server={syslog-server-ip}:{syslog-server-port},facility=user,tag=proxy_access_log,severity=info
+      admin_access_log: /dev/stdout
+      admin_gui_access_log: /dev/stdout
+      portal_api_access_log: /dev/stdout
+      proxy_error_log: /dev/stderr
+      admin_error_log: /dev/stderr
+      admin_gui_error_log: /dev/stderr
+      portal_api_error_log: /dev/stderr
+
+      log_level: info
+
+      nginx_http_lua_shared_dict: ws_broker_metrics 10m
+
+      untrusted_lua_sandbox_requires: cjson.safe,resty.http
+
+      # NGINX_PROXY_PROXY_BUFFER_SIZE: "64k"
+      # NGINX_PROXY_PROXY_BUFFERS: "8 128k"
+      # NGINX_PROXY_PROXY_BUSY_BUFFERS_SIZE: "256k"
+      # NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS: "4 32k"
+
+    ingressController:
+      enabled: false
+      installCRDs: false
+    
+    enterprise:
+      enabled: true
+      license_secret: kong-enterprise-license
+
+    serviceMonitor:
+      enabled: true
+    
+    resources:
+      limits:
+       cpu: 1
+       memory: 1G
+      requests:
+       cpu: 1
+       memory: 1G
+
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 1
+      behavior: {}
+      ## targetCPUUtilizationPercentage only used if the cluster doesn't support autoscaling/v2 or autoscaling/v2beta
+      targetCPUUtilizationPercentage:
+      ## Otherwise for clusters that do support autoscaling/v2 or autoscaling/v2beta, use metrics
+      metrics:
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 80
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+
+    podAnnotations:
+      prometheus.metrics.kuma.io/aggregate-application-port: "8100"
+      prometheus.metrics.kuma.io/aggregate-application-path: "/metrics"
+      kuma.io/gateway: enabled      
+    
+    # podLabels:
+    #   kuma.io/sidecar-injection: enabled
+
+    portal:
+      enabled: false
+
+    portalapi:
+      enabled: false
+
+    certificates:
+      enabled: true
+      clusterIssuer: "kong-clustering-int-ca"
+      proxy:
+        enabled: false
+      admin:
+        enabled: false
+      portal:
+        enabled: false
+      cluster:
+        enabled: true
+        commonName: "${cp_dp_name}-${kong_deployment_name}-${k8s_cluster_name}-${host_machine}"

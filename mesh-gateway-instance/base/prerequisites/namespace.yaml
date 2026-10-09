@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${mesh}-gateway-instance
+  labels: 
+    kuma.io/sidecar-injection: enabled
+  annotations:
+    kuma.io/mesh: ${mesh}
+    kuma.io/gateway: enabled

@@ -1,0 +1,13 @@
+kind: ReferenceGrant
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: "${name}"
+  namespace: "${namespace}"
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: kong-operator
+  to:
+  - group: ""
+    kind: Service

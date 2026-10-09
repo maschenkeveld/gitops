@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-mesh-control-plane-api-to-https-lb
+  namespace: kong-mesh-system
+  labels:
+    app: kong-mesh-control-plane-api-to-https-lb
+    app.kubernetes.io/instance: kong-mesh
+    app.kubernetes.io/name: kong-mesh
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: api-to-https-lb.mesh-global.k8s.mschnkvld.lab
+spec:
+  ports:
+    - name: https-api-server
+      protocol: TCP
+      appProtocol: https
+      port: 443
+      targetPort: 5682
+  selector:
+    app: kong-mesh-control-plane
+    app.kubernetes.io/instance: kong-mesh
+    app.kubernetes.io/name: kong-mesh
+  type: LoadBalancer

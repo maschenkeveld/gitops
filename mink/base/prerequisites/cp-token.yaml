@@ -1,0 +1,19 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: cp-token
+spec:
+  secretStoreRef:
+    name: openbao
+    kind: ClusterSecretStore
+  refreshInterval: "1h"
+  target:
+    name: cp-token
+    creationPolicy: 'Owner'
+    deletionPolicy: "Retain"
+  data:
+    - secretKey: "token"
+      remoteRef:
+        key: konnect/konnect-${mink_control_plane_region}-${mink_control_plane_name}/connection-details
+        property: "${k8s_cluster_name}"
+        decodingStrategy: None

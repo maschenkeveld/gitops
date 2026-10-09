@@ -1,0 +1,72 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-dns-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./external-dns/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Namespace
+      name: external-dns
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "shared"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-dns-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./external-dns/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: external-dns
+      namespace: external-dns
+  dependsOn:
+    - name: external-dns-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "shared"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-dns-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./external-dns/clusters/shared/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: external-dns-deployment
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "shared"

@@ -1,0 +1,27 @@
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: kong-enterprise-license
+spec:
+  secretStoreRef:
+    name: openbao
+    kind: ClusterSecretStore
+  refreshInterval: "1h"
+  target:
+    name: kong-enterprise-license
+    creationPolicy: 'Owner'
+    deletionPolicy: "Retain"
+  data:
+    - secretKey: license
+      remoteRef:
+        key: kong-license
+        property: license
+        decodingStrategy: None
+
+# apiVersion: v1
+# data:
+# kind: Secret
+# metadata:
+#   name: kong-enterprise-license
+#   namespace: kong-control-plane

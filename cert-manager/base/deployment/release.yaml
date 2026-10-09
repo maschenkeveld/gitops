@@ -1,0 +1,37 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  interval: 1m
+  releaseName: cert-manager
+  chart:
+    spec:
+      chart: cert-manager
+      version: 1.13.3
+      sourceRef:
+        kind: HelmRepository
+        name: jetstack
+  values:
+    installCRDs: true
+    resources:
+      requests:
+        cpu: 25m
+        memory: 75Mi
+      limits:
+        memory: 150Mi
+    cainjector:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 100Mi
+        limits:
+          memory: 200Mi
+    webhook:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 50Mi
+        limits:
+          memory: 150Mi

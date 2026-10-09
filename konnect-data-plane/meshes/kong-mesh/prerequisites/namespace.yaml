@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kong-${cp_dp_name}-${kong_deployment_name}
+  labels: 
+    kuma.io/sidecar-injection: enabled
+    kuma.io/mesh: ${mesh}
+  annotations:
+    kuma.io/gateway: enabled

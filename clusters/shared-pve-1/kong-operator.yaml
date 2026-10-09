@@ -1,0 +1,107 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-operator-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kong-operator/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  healthChecks:
+  - apiVersion: apps/v1
+    kind: Namespace
+    name: kong-operator
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-operator-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kong-operator/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: kong-operator-prerequisites
+      namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-operator-auth-secret
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kong-operator/base/configs/auth-secret
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: kong-operator-deployment
+      namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-operator-auth-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kong-operator/base/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  # Split from kong-operator-auth-secret deliberately: both the Secret and
+  # this Kustomization's own KonnectAPIAuthConfiguration (which reads it via
+  # ${token} below) used to be applied in one batch - but kustomize-controller
+  # dry-runs the *whole* batch before applying any of it, so when the Secret
+  # didn't exist yet, the dry-run failure blocked the very apply that would
+  # have created it. dependsOn guarantees the Secret already exists and is
+  # Ready before this Kustomization's build+dry-run+apply even starts.
+  dependsOn:
+    - name: kong-operator-auth-secret
+      namespace: flux-system
+  # Resolves ${token} in konnect-api-auth-configuration.yaml from the live
+  # Secret kong-operator-auth-secret produces - keeps the Konnect PAT out of
+  # git (KonnectAPIAuthConfiguration's type: secretRef doesn't work on this
+  # operator version, see the comment on that manifest).
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: konnect-api-token
+        optional: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kong-operator-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kong-operator/clusters/shared/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: kong-operator-auth-configs
+      namespace: flux-system

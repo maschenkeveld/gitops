@@ -1,0 +1,72 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-heidi-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "heidi"
+      namespace: "heidi"
+      health: "healthy" # I think this does not work for MeshHealthCheck and CircuitBreaker
+      version: "v1"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-heidi-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "heidi"
+      namespace: "heidi"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v1"
+# ---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: crawler-heidi-configs
+#   namespace: flux-system
+# spec:
+#   interval: 1m
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#   path: ./crawler/clusters/mink-zone-a/heidi/configs
+#   prune: true
+#   wait: true
+#   timeout: 1m
+#   postBuild:
+#     substitute:
+#       host_machine: "pve-1"
+#       k8s_cluster_name: "mink-zone-a"
+#       name: "heidi"
+#       namespace: "heidi"
+#       mesh: "mesh-a"
+#       external_facing: "\"true\""
+#       health: "unhealthy"
+#       version: "v1"

@@ -1,0 +1,160 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/meshes/kong-mesh/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor"
+      namespace: "victor"
+      mesh: "mesh-a"
+      health: "healthy"
+      version: "v1"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: crawler-victor-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor"
+      namespace: "victor"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v1"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/clusters/mink-zone-a/victor/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: crawler-victor-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor"
+      namespace: "victor"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v1"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-v2-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/meshes/kong-mesh/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor-v2"
+      namespace: "victor-v2"
+      mesh: "mesh-a"
+      health: "healthy"
+      version: "v2"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-v2-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: crawler-victor-v2-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor-v2"
+      namespace: "victor-v2"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v2"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-victor-v2-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/clusters/mink-zone-a/victor/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  dependsOn:
+    - name: crawler-victor-v2-prerequisites
+      namespace: flux-system
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-a"
+      name: "victor-v2"
+      namespace: "victor-v2"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v2"

@@ -1,0 +1,22 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshTrafficPermission
+metadata:
+  name: allow-alice-to-${name}
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: "${name}"
+  from:
+  - targetRef:
+      kind: MeshSubset
+      tags:
+        k8s.kuma.io/service-name: "alice"
+        # k8s.kuma.io/namespace: alice
+        # app: "alice"
+    default:
+      action: Allow

@@ -1,0 +1,15 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshGatewayInstance
+metadata:
+  name: ${mesh}-gateway-instance
+  namespace: ${mesh}-gateway-instance
+spec:
+  replicas: 1
+  serviceType: LoadBalancer
+  tags:
+    kuma.io/service: ${mesh}-gateway
+    kuma.io/mesh: ${mesh}
+  serviceTemplate:
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "${mesh}-gateway.${k8s_cluster_name}.${host_machine}.example.com"

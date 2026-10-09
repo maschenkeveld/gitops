@@ -1,0 +1,96 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kong-mesh
+  namespace: kong-mesh-system-${k8s_cluster_name}
+spec:
+  interval: 1m
+  releaseName: kong-mesh
+  chart:
+    spec:
+      chart: kong-mesh
+      version: '2.14.0'
+      sourceRef:
+        kind: HelmRepository
+        name: kong-mesh
+  valuesFrom:
+    - kind: Secret
+      name: konnect-details-secret
+  values:
+    kuma:
+      controlPlane:
+        envVars:
+          KUMA_EXPERIMENTAL_REACHABLE_BACKENDS: "true"  # I THINK THIS IS TRUE BY DEFAULT
+          KUMA_EXPERIMENTAL_AUTO_REACHABLE_SERVICES: "true"   # I THINK THIS IS TRUE BY DEFAULT
+          # KUMA_RUNTIME_KUBERNETES_INJECTOR_SIDECAR_CONTAINER_IP_FAMILY_MODE: ipv4
+        environment: ${mesh_environment}
+        mode: zone
+        zone: ${k8s_cluster_name}
+        kdsGlobalAddress: grpcs://eu.mesh.sync.konghq.com:443/
+        # konnect:
+        #   cpId: ${cp_id}
+        secrets:
+          - Env: KMESH_MULTIZONE_ZONE_KDS_AUTH_CP_TOKEN_INLINE
+            Secret: cp-token
+            Key: token
+        admissionServerPort: 5443
+      cni:
+        enabled: true
+        chained: true
+        netDir: /etc/cni/net.d
+        binDir: /opt/cni/bin
+        confName: 05-cilium.conflist
+        containerSecurityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+      ingress:
+        enabled: true
+        # annotations:
+        #   kuma.io/ingress-public-address: X.X.X.X
+        #   kuma.io/ingress-public-port: 10001
+        service:
+          enabled: true
+          type: LoadBalancer
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: "ingress.${k8s_cluster_name}.${host_machine}.example.com"
+          port: 10001
+      egress:
+        enabled: true
+        service:
+          enabled: true
+          type: LoadBalancer
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: "egress.${k8s_cluster_name}.${host_machine}.example.com"
+          port: 10002
+
+    # kuma:
+    #   controlPlane:
+    #     autoscaling:
+    #       enabled: true
+    #       minReplicas: 1
+    #       maxReplicas: 1
+    #     ingress:
+    #       enabled: true
+    #       ingressClassName: nginx
+    #       hostname: "api.${k8s_cluster_name}.${host_machine}.example.com"
+    #     tls:
+    #       general:
+    #         secretName: ""
+    #         caSecretName: ""
+    #         caBundle: ""
+    #       apiServer:
+    #         secretName: ""
+    #         clientCertsSecretName: ""
+    #       kdsGlobalServer:
+    #         secretName: "kong-mesh-tls-kds-global-server-key-cert"
+    #         create: false
+    #         cert: "tls.crt"
+    #         key: "tls.key"
+    #       kdsZoneClient:
+    #         secretName: ""
+    #         create: false
+    #         skipVerify: false
+    #     secrets:
+    #       - Env: "KMESH_LICENSE_INLINE"
+    #         Secret: "kong-mesh-license"
+    #         Key: "license"

@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kong-mesh-system-${k8s_cluster_name}
+resources:
+  - namespace.yaml
+  - cp-token.yaml
+  - kong-mesh-license.yaml
+  - konnect-details-secret.yaml

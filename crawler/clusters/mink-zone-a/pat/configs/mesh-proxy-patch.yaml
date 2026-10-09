@@ -1,0 +1,33 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshProxyPatch
+metadata:
+  name: header-version-to-path
+  namespace: pat
+  labels:
+    kuma.io/mesh: mesh-a
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Mesh
+  default:
+    appendModifications:
+      - httpFilter:
+          operation: AddFirst
+          match:
+            origin: inbound
+            listenerTags:
+              kuma.io/service: pat_pat_svc_8080
+          value: |
+            name: envoy.filters.http.lua
+            typedConfig:
+              '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              inlineCode: |
+                function envoy_on_request(handle)
+                  local version = handle:headers():get("version")
+                  local path = handle:headers():get(":path") or ""
+                  if version == "v1" and not path:find("^/v1") then
+                    handle:headers():replace(":path", path .. "/v1")
+                  elseif version == "v2" and not path:find("^/v2") then
+                    handle:headers():replace(":path", path .. "/v2")
+                  end
+                end

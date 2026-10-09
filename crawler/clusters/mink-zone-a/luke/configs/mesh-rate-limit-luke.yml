@@ -1,0 +1,28 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshRateLimit
+metadata:
+  name: rate-limit-for-${name}
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: ${name}
+  from:
+    - targetRef:
+        kind: Mesh
+      default:
+        local:
+          http:
+            requestRate:
+              num: 2
+              interval: 30s
+            onRateLimit:
+              status: 429
+              headers:
+                set:
+                  - name: "x-kuma-rate-limited"
+                    value: 'true'

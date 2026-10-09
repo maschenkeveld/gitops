@@ -1,0 +1,20 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: "${name}"
+  namespace: "${namespace}"
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: payload-park-gw
+      namespace: kong-operator
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/${name}"
+      backendRefs:
+        - name: "${name}"
+          namespace: "${namespace}"
+          port: 8080

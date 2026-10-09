@@ -1,0 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kong-mesh-control-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kong-mesh-control-plane
+subjects:
+- kind: ServiceAccount
+  name: kong-mesh-control-plane
+  namespace: kong-mesh-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kong-mesh-control-plane-workloads
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kong-mesh-control-plane-workloads
+subjects:
+- kind: ServiceAccount
+  name: kong-mesh-control-plane
+  namespace: kong-mesh-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kong-mesh-control-plane-kmesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kong-mesh-control-plane-kmesh
+subjects:
+- kind: ServiceAccount
+  name: kong-mesh-control-plane
+  namespace: kong-mesh-system

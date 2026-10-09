@@ -1,0 +1,17 @@
+apiVersion: kuma.io/v1alpha1
+kind: MeshTLS
+metadata:
+  name: mesh-tls-alice
+  namespace: ${namespace}
+  labels:
+    kuma.io/mesh: ${mesh}
+    kuma.io/origin: zone
+spec:
+  targetRef:
+    kind: Dataplane
+    labels:
+      app: alice
+  rules:
+  - default:
+      mode: Permissive
+      # mode: Strict

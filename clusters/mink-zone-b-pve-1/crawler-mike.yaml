@@ -1,0 +1,74 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-mike-prerequisites
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/meshes/kong-mesh/prerequisites
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+      name: "mike"
+      namespace: "mike"
+      mesh: "mesh-a"
+      health: "healthy"
+      version: "v2"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-mike-deployment
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/base/deployment
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+      name: "mike"
+      namespace: "mike"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v2"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crawler-mike-configs
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crawler/clusters/mink-zone-a/mike/configs
+  prune: true
+  wait: true
+  timeout: 1m
+  postBuild:
+    substitute:
+      host_machine: "pve-1"
+      k8s_cluster_name: "mink-zone-b"
+      name: "mike"
+      namespace: "mike"
+      mesh: "mesh-a"
+      external_facing: "\"true\""
+      health: "healthy"
+      version: "v1"

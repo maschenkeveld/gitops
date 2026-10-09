@@ -1,0 +1,11 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: kong-proxy-dp-1-hybrid-1-manual-shared-pve-1-example-com
+spec:
+  endpoints:
+  - dnsName: kong-proxy-dp-1-hybrid-1-manual.shared.pve-1.example.com
+    recordTTL: 60
+    recordType: CNAME
+    targets:
+      - kong-proxy-dp-1-hybrid-1.shared.pve-1.example.com

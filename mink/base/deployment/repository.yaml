@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kong-mesh
+  namespace: kong-mesh-system-${k8s_cluster_name}
+spec:
+  interval: 1m
+  url: https://kong.github.io/kong-mesh-charts
